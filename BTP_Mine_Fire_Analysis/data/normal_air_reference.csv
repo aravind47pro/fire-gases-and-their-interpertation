@@ -1,0 +1,7 @@
+Component,Volume_percent,Mass_percent,O2_N2_Ratio_Volume,Reference,Notes
+O2,20.93,23.15,0.2648,"USBM / Standard Atmospheric Air Composition","Oxygen content in clean dry air"
+N2,79.04,75.47,1.0000,"USBM / Standard Atmospheric Air Composition","Nitrogen content (includes standard atmospheric argon ~0.93%)"
+CO2,0.035,0.055,NA,"Standard Atmospheric Baseline","Typical clean ambient air: 0.03% - 0.04% vol"
+CO,0.0001,0.0001,NA,"Standard Atmospheric Baseline","Trace background (< 1 ppm in clean air)"
+CH4,0.0002,0.0001,NA,"Standard Atmospheric Baseline","Trace background (~1.8 - 2.0 ppm)"
+RATIO_O2_TO_N2,0.2648026,NA,NA,"Formula Reference: 20.93 / 79.04 = 0.2648","Standard factor (approx. 0.265) used in oxygen deficiency: Delta_O2 = 0.265 * N2 - O2"

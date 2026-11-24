@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BTP Dashboard — Mine Fire Gases & Coward Diagram</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Custom tooltip styling */
+    .tooltip-card {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .zone-badge {
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased p-4 md:p-6 font-sans">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- HEADER SECTION -->
+    <header class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">IIT Kharagpur — Mining Engineering</span>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">BTP Project</span>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 mt-1">Fire Gases and Their Interpretation in Underground Coal Mines</h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Primary Dataset: 14 Real Mine-Fire Samples, Lodna Colliery (Jharia Coalfield) — 
+          <span class="italic font-medium">Singh et al. (2007), Int. J. Coal Geol., 69(3), 192–204</span>
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <p class="text-xs font-semibold text-slate-700">Explosibility Status</p>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-800 border border-green-200">
+            All Samples: Zone D (Inert)
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- METRICS CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-medium">Total Real Samples</p>
+        <p class="text-2xl font-bold text-slate-900 mt-1">14</p>
+        <p class="text-[11px] text-slate-500 mt-1">1985 – 1993 Lodna Fire</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-medium">Highest Temperature</p>
+        <p class="text-2xl font-bold text-red-600 mt-1">80.0 °C</p>
+        <p class="text-[11px] text-slate-500 mt-1">S4 (20-06-1987) | CO: 0.022%</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-medium">Highest CO Concentration</p>
+        <p class="text-2xl font-bold text-purple-600 mt-1">0.813 %</p>
+        <p class="text-[11px] text-slate-500 mt-1">S6 (02-06-1988) at 64.0 °C</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-medium">Highest H₂ Concentration</p>
+        <p class="text-2xl font-bold text-blue-600 mt-1">2.343 %</p>
+        <p class="text-[11px] text-slate-500 mt-1">S5 (15-12-1987) at 72.0 °C</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm col-span-2 md:col-span-1">
+        <p class="text-xs text-slate-500 font-medium">Peak Graham Ratio</p>
+        <p class="text-2xl font-bold text-amber-600 mt-1">4.811</p>
+        <p class="text-[11px] text-amber-700 font-semibold mt-1">Active Fire Condition (S6)</p>
+      </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN SECTION: COWARD DIAGRAM + SAMPLE INSPECTOR -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: INTERACTIVE COWARD DIAGRAM (8 COLS) -->
+      <div class="lg:col-span-8 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">🧭 Interactive Coward Explosibility Diagram</h2>
+            <p class="text-xs text-slate-500">Methane ($CH_4$) vs. Oxygen ($O_2$) | USBM Bulletin 503 Boundaries</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-700">
+              <input type="checkbox" id="toggleDilution" checked class="rounded text-blue-600 focus:ring-blue-500">
+              Show Theoretical N₂ Dilution
+            </label>
+            <button id="resetZoomBtn" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-medium">
+              Reset View
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG Coward Diagram Container -->
+        <div class="relative w-full aspect-[4/3] max-h-[520px] my-3 border border-slate-100 rounded-lg overflow-hidden bg-white select-none">
+          <svg id="cowardSvg" viewBox="0 0 800 600" class="w-full h-full cursor-crosshair">
+            <!-- Grid lines & Axes will be drawn dynamically by JS -->
+          </svg>
+
+          <!-- Floating Tooltip -->
+          <div id="diagramTooltip" class="tooltip-card absolute pointer-events-none hidden bg-slate-900 text-white p-3 rounded-lg text-xs shadow-xl border border-slate-700 z-30 max-w-xs">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Legend and Reference Footnote -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px] pt-3 border-t border-slate-100">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 bg-red-500/30 border border-red-600 rounded"></span>
+            <span class="font-medium text-slate-700">Zone A (Explosive)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 bg-orange-400/20 border border-orange-500 rounded"></span>
+            <span class="font-medium text-slate-700">Zone B (Explosive w/ air)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 bg-blue-400/20 border border-blue-500 rounded"></span>
+            <span class="font-medium text-slate-700">Zone C (Explosive w/ CH₄)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 bg-emerald-400/20 border border-emerald-500 rounded"></span>
+            <span class="font-medium text-slate-700">Zone D (Inert Atmosphere)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 bg-cyan-400 border border-blue-800 rounded"></span>
+            <span class="font-medium text-slate-700">N₂ Dilution Path</span>
+          </div>
+        </div>
+
+        <!-- Explanatory note -->
+        <p class="text-[11px] text-slate-500 mt-2 bg-slate-50 p-2 rounded border border-slate-200">
+          <strong>Key BTP Finding:</strong> All 14 Lodna samples reside in <strong>Zone D</strong> (O₂ ≤ 8.18%, CH₄ ≤ 0.526%), 
+          demonstrating that the sealed atmosphere was non-explosive under current conditions. Click on any sample to inspect its fire ratios.
+        </p>
+      </div>
+
+      <!-- RIGHT: SAMPLE DETAIL INSPECTOR (4 COLS) -->
+      <div class="lg:col-span-4 space-y-4">
+
+        <!-- Selected Sample Card -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Sample Detailed Inspector</h3>
+              <p class="text-xs text-slate-500" id="sampleInspectorSubtitle">Select a sample below or on the diagram</p>
+            </div>
+            <select id="sampleSelect" class="text-xs border border-slate-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+
+          <div id="inspectorContent" class="mt-3 space-y-3">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Academic N2 Dilution Trajectory Card -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 flex items-center justify-between">
+            <span>💨 Theoretical N₂ Inertisation Model</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-800 rounded">Academic Only</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">Simulates pure N₂ flushing of a 27,000 m³ sealed void at 5 m³/s (15% CH₄, 10% O₂ initial).</p>
+          
+          <div class="mt-3 space-y-2">
+            <div class="flex justify-between text-xs text-slate-700">
+              <span>Dilution Progress (Fraction remaining, f):</span>
+              <span id="sliderValue" class="font-bold text-blue-600">f = 1.00 (Initial)</span>
+            </div>
+            <input type="range" id="dilutionSlider" min="0.05" max="1.00" step="0.05" value="1.00" class="w-full accent-blue-600 cursor-pointer">
+            <div class="grid grid-cols-2 gap-2 text-center text-xs mt-2 bg-slate-50 p-2 rounded border border-slate-100">
+              <div>
+                <p class="text-[10px] text-slate-500">Current CH₄</p>
+                <p class="font-bold text-slate-800" id="dilutionCh4">15.00 %</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-500">Current O₂</p>
+                <p class="font-bold text-slate-800" id="dilutionO2">10.00 %</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600">
+              Nominal Turnover: <strong>V/Q = 90.0 minutes</strong>. 
+              <span class="text-amber-700 font-semibold block mt-0.5">Note: Real mine inertisation requires 3 to 5+ volume flushes due to dead zones, gas desorption, and leakage.</span>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CORE RESEARCH QUESTIONS RESOLUTION -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <h2 class="text-base font-bold text-slate-900 pb-2 border-b border-slate-100">
+        🔬 Empirical Resolution of the 4 Core BTP Research Questions
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-xs">
+        <div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
+          <p class="font-bold text-slate-800 text-sm">Q1: Does CO increase when temperature increases?</p>
+          <div class="flex items-center gap-2 my-1">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800">Pearson r = +0.540 (Moderate)</span>
+            <span class="text-red-600 font-bold">Non-Monotonic!</span>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            The relationship is <strong>non-monotonic</strong>. The highest temperature (<strong>80°C</strong> on 20-06-1987) produced low CO (<strong>0.022%</strong>) because residual O₂ was only 1.55%. 
+            Peak CO (<strong>0.813%</strong>) occurred at <strong>64°C</strong> where O₂ was 4.22%. CO generation requires available oxygen.
+          </p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
+          <p class="font-bold text-slate-800 text-sm">Q2: Does O₂ decrease as temperature increases?</p>
+          <div class="flex items-center gap-2 my-1">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800">Pearson r = -0.370 (Weak-Negative)</span>
+            <span class="text-slate-700 font-medium">Leakage Governed</span>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Oxidation consumes O₂ at elevated temperatures. However, residual O₂ behind seals is strongly influenced by 
+            surface barometric breathing and stopping leakage. For example, Sample 12 had <strong>0.00% O₂ at 37°C</strong>.
+          </p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
+          <p class="font-bold text-slate-800 text-sm">Q3: Does H₂ increase with temperature?</p>
+          <div class="flex items-center gap-2 my-1">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">Pearson r = +0.536 (Moderate)</span>
+            <span class="text-slate-700 font-medium">Thermal Threshold</span>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Hydrogen indicates high-temperature coal heating (>250°C at the coal face) and the water-gas reaction. 
+            Peak H₂ (<strong>2.343%</strong>) occurred at <strong>72°C</strong>. Samples below 55°C showed 0.000% detectable H₂.
+          </p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
+          <p class="font-bold text-slate-800 text-sm">Q4: Does Graham ratio increase with temperature?</p>
+          <div class="flex items-center gap-2 my-1">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800">Pearson r = +0.539 (Moderate)</span>
+            <span class="text-amber-800 font-bold">Oxidation Indicator</span>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Graham ratio ($100 \cdot CO / \Delta O_2$) reflects oxidation intensity. While positively associated with temperature, 
+            it is non-monotonic due to oxygen starvation and cannot serve as an absolute direct thermometer.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA TABLE: ALL 14 SAMPLES -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+      <h2 class="text-base font-bold text-slate-900 mb-3">📋 Complete 14 Real Samples & Calculated Indices (Lodna Colliery)</h2>
+      <table class="w-full text-left text-xs text-slate-700 border-collapse">
+        <thead>
+          <tr class="bg-slate-100 text-slate-800 font-semibold border-b border-slate-200">
+            <th class="p-2">Sample</th>
+            <th class="p-2">Date</th>
+            <th class="p-2 text-right">Temp (°C)</th>
+            <th class="p-2 text-right">CO₂ (%)</th>
+            <th class="p-2 text-right">O₂ (%)</th>
+            <th class="p-2 text-right">CO (%)</th>
+            <th class="p-2 text-right">H₂ (%)</th>
+            <th class="p-2 text-right">CH₄ (%)</th>
+            <th class="p-2 text-right">N₂ (%)</th>
+            <th class="p-2 text-right">ΔO₂ (%)</th>
+            <th class="p-2 text-right">Graham Ratio</th>
+            <th class="p-2 text-right">Young Ratio</th>
+            <th class="p-2 text-right">Jones-Trickett</th>
+            <th class="p-2 text-center">Coward Zone</th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody" class="divide-y divide-slate-100 font-mono">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FOOTER / CITATION -->
+    <footer class="text-center text-xs text-slate-400 py-3">
+      BTP Project — Department of Mining Engineering, IIT Kharagpur | Published Reference: Singh et al. (2007) | Coward Diagram: USBM Bull. 503
+    </footer>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & SVG RENDERING -->
+  <script>
+    // 14 Published Real Samples from Lodna Colliery (Singh et al., 2007)
+    const samples = [
+      { no: 1, date: "27-09-1985", co2: 12.40, o2: 5.18, co: 0.067, h2: 0.000, ch4: 0.351, n2: 82.00, temp: 73 },
+      { no: 2, date: "14-05-1986", co2: 15.75, o2: 1.64, co: 0.067, h2: 0.000, ch4: 0.000, n2: 82.54, temp: 55 },
+      { no: 3, date: "08-10-1986", co2: 14.09, o2: 2.13, co: 0.254, h2: 0.000, ch4: 0.000, n2: 83.52, temp: 30 },
+      { no: 4, date: "20-06-1987", co2: 17.13, o2: 1.55, co: 0.022, h2: 0.387, ch4: 0.000, n2: 80.92, temp: 80 },
+      { no: 5, date: "15-12-1987", co2: 13.37, o2: 4.75, co: 0.292, h2: 2.343, ch4: 0.000, n2: 79.25, temp: 72 },
+      { no: 6, date: "02-06-1988", co2: 14.02, o2: 4.22, co: 0.813, h2: 0.670, ch4: 0.526, n2: 79.75, temp: 64 },
+      { no: 7, date: "27-12-1988", co2: 15.53, o2: 3.33, co: 0.627, h2: 0.627, ch4: 0.000, n2: 79.90, temp: 67 },
+      { no: 8, date: "22-06-1989", co2: 15.36, o2: 3.93, co: 0.287, h2: 0.381, ch4: 0.095, n2: 79.95, temp: 63 },
+      { no: 9, date: "11-06-1990", co2: 15.38, o2: 4.88, co: 0.000, h2: 0.000, ch4: 0.000, n2: 79.74, temp: 47 },
+      { no: 10, date: "11-11-1990", co2: 15.89, o2: 4.29, co: 0.000, h2: 0.000, ch4: 0.000, n2: 79.83, temp: 54 },
+      { no: 11, date: "07-12-1991", co2: 16.00, o2: 3.00, co: 0.002, h2: 0.000, ch4: 0.000, n2: 81.00, temp: 31 },
+      { no: 12, date: "16-10-1992", co2: 10.65, o2: 0.00, co: 0.000, h2: 0.000, ch4: 0.000, n2: 89.35, temp: 37 },
+      { no: 13, date: "22-04-1993", co2: 10.64, o2: 7.51, co: 0.000, h2: 0.000, ch4: 0.000, n2: 81.86, temp: 34 },
+      { no: 14, date: "18-10-1993", co2: 10.67, o2: 8.18, co: 0.000, h2: 0.000, ch4: 0.000, n2: 81.16, temp: 33 }
+    ];
+
+    // Calculate indices for each sample
+    const factor = 20.93 / 79.04;
+    samples.forEach(s => {
+      s.do2 = (factor * s.n2) - s.o2;
+      s.graham = s.do2 > 0 ? (100.0 * s.co) / s.do2 : 0;
+      s.young = s.do2 > 0 ? (100.0 * s.co2) / s.do2 : 0;
+      s.jt = s.do2 > 0 ? (s.co2 + 0.75 * s.co - 0.25 * s.h2) / s.do2 : 0;
+      s.co_co2 = s.co2 > 0 ? (100.0 * s.co) / s.co2 : 0;
+      const exc_n2 = s.n2 - 3.8 * s.o2;
+      const comb = s.co + s.h2 + s.ch4;
+      s.willett = (exc_n2 + s.co2 + comb) > 0 ? s.co2 / (exc_n2 + s.co2 + comb) : 0;
+      s.zone = "Zone D";
+    });
+
+    // Populate Data Table
+    const tbody = document.getElementById("dataTableBody");
+    samples.forEach(s => {
+      const tr = document.createElement("tr");
+      tr.className = "hover:bg-blue-50/50 cursor-pointer transition-colors";
+      tr.onclick = () => selectSample(s.no);
+      tr.innerHTML = `
+        <td class="p-2 font-bold text-blue-600">S${s.no}</td>
+        <td class="p-2">${s.date}</td>
+        <td class="p-2 text-right">${s.temp.toFixed(0)}</td>
+        <td class="p-2 text-right">${s.co2.toFixed(2)}</td>
+        <td class="p-2 text-right font-semibold ${s.o2 < 2 ? 'text-red-600' : ''}">${s.o2.toFixed(2)}</td>
+        <td class="p-2 text-right font-semibold ${s.co > 0.2 ? 'text-purple-600' : ''}">${s.co.toFixed(3)}</td>
+        <td class="p-2 text-right ${s.h2 > 0 ? 'text-blue-600 font-semibold' : ''}">${s.h2.toFixed(3)}</td>
+        <td class="p-2 text-right">${s.ch4.toFixed(3)}</td>
+        <td class="p-2 text-right">${s.n2.toFixed(2)}</td>
+        <td class="p-2 text-right">${s.do2.toFixed(2)}</td>
+        <td class="p-2 text-right font-bold ${s.graham > 2 ? 'text-red-600' : (s.graham > 0.5 ? 'text-amber-600' : 'text-slate-700')}">${s.graham.toFixed(3)}</td>
+        <td class="p-2 text-right">${s.young.toFixed(1)}</td>
+        <td class="p-2 text-right">${s.jt.toFixed(3)}</td>
+        <td class="p-2 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Zone D</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Populate Sample Select Dropdown
+    const sel = document.getElementById("sampleSelect");
+    samples.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.no;
+      opt.textContent = `Sample ${s.no} (${s.date}, ${s.temp}°C)`;
+      sel.appendChild(opt);
+    });
+    sel.onchange = (e) => selectSample(parseInt(e.target.value));
+
+    let selectedSampleNo = 6; // Default to Peak CO sample
+
+    function selectSample(sampleNo) {
+      selectedSampleNo = sampleNo;
+      sel.value = sampleNo;
+      const s = samples.find(x => x.no === sampleNo);
+      if (!s) return;
+
+      document.getElementById("sampleInspectorSubtitle").textContent = `Selected: Sample S${s.no} (${s.date})`;
+
+      const html = `
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-2">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+            <span class="font-bold text-slate-800 text-sm">Sample ${s.no} — ${s.date}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Zone D (Inert)</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-slate-700">
+            <div>Temperature: <strong class="text-slate-900">${s.temp} °C</strong></div>
+            <div>Oxygen (O₂): <strong class="text-blue-700">${s.o2.toFixed(2)}%</strong></div>
+            <div>Carbon Monoxide (CO): <strong class="text-purple-700">${s.co.toFixed(3)}%</strong></div>
+            <div>Hydrogen (H₂): <strong class="text-slate-900">${s.h2.toFixed(3)}%</strong></div>
+            <div>Methane (CH₄): <strong class="text-slate-900">${s.ch4.toFixed(3)}%</strong></div>
+            <div>Carbon Dioxide (CO₂): <strong class="text-slate-900">${s.co2.toFixed(2)}%</strong></div>
+            <div>Nitrogen (N₂): <strong class="text-slate-900">${s.n2.toFixed(2)}%</strong></div>
+            <div>Oxygen Deficiency (ΔO₂): <strong class="text-slate-900">${s.do2.toFixed(2)}%</strong></div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs space-y-2">
+          <p class="font-bold text-slate-800 text-[11px] uppercase tracking-wide">Calculated Fire-Gas Ratios</p>
+          <div class="space-y-1.5">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Graham Ratio (100·CO/ΔO₂):</span>
+              <span class="font-bold ${s.graham > 2 ? 'text-red-600' : 'text-slate-800'}">${s.graham.toFixed(3)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Young Ratio (100·CO₂/ΔO₂):</span>
+              <span class="font-bold text-slate-800">${s.young.toFixed(1)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">CO / CO₂ Ratio (%):</span>
+              <span class="font-bold text-slate-800">${s.co_co2.toFixed(3)}%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Jones–Trickett Ratio:</span>
+              <span class="font-bold text-slate-800">${s.jt.toFixed(3)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Willett Ratio:</span>
+              <span class="font-bold text-slate-800">${s.willett.toFixed(3)}</span>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-100 text-[11px] ${s.graham > 2 ? 'text-red-700 font-semibold' : 'text-slate-600'}">
+            Status: ${s.graham > 2 ? '🔥 Active Fire Indication' : (s.graham > 0.5 ? '⚠️ Spontaneous Heating' : '✅ Normal / Background')}
+          </div>
+        </div>
+      `;
+      document.getElementById("inspectorContent").innerHTML = html;
+      drawCowardDiagram();
+    }
+
+    // ==========================================
+    // SVG COWARD DIAGRAM RENDERING
+    // ==========================================
+    const svg = document.getElementById("cowardSvg");
+    const tooltip = document.getElementById("diagramTooltip");
+
+    // Coordinate Mapping (0-22% CH4 -> X: 60 to 760; 0-22% O2 -> Y: 540 to 40)
+    const padding = { left: 65, right: 35, top: 40, bottom: 55 };
+    const width = 800, height = 600;
+    const plotW = width - padding.left - padding.right;
+    const plotH = height - padding.top - padding.bottom;
+    const xMax = 22.0, yMax = 22.0;
+
+    function toSvgX(ch4) {
+      return padding.left + (ch4 / xMax) * plotW;
+    }
+    function toSvgY(o2) {
+      return height - padding.bottom - (o2 / yMax) * plotH;
+    }
+
+    function drawCowardDiagram() {
+      svg.innerHTML = "";
+      const showDilution = document.getElementById("toggleDilution").checked;
+      const currentF = parseFloat(document.getElementById("dilutionSlider").value);
+
+      // 1. Grid Lines & Axis Ticks
+      for (let ch4 = 0; ch4 <= 22; ch4 += 2) {
+        const x = toSvgX(ch4);
+        svg.innerHTML += `
+          <line x1="${x}" y1="${toSvgY(0)}" x2="${x}" y2="${toSvgY(yMax)}" stroke="#f1f5f9" stroke-width="1.2"/>
+          <text x="${x}" y="${toSvgY(0) + 18}" font-size="11" text-anchor="middle" fill="#64748b" font-family="sans-serif">${ch4}</text>
+        `;
+      }
+      for (let o2 = 0; o2 <= 22; o2 += 2) {
+        const y = toSvgY(o2);
+        svg.innerHTML += `
+          <line x1="${toSvgX(0)}" y1="${y}" x2="${toSvgX(xMax)}" y2="${y}" stroke="#f1f5f9" stroke-width="1.2"/>
+          <text x="${toSvgX(0) - 10}" y="${y + 4}" font-size="11" text-anchor="end" fill="#64748b" font-family="sans-serif">${o2}</text>
+        `;
+      }
+
+      // 2. Air Dilution Line: O2 = 20.93 * (1 - CH4/100)
+      const airX0 = toSvgX(0), airY0 = toSvgY(20.93);
+      const airX1 = toSvgX(22), airY1 = toSvgY(20.93 * (1 - 22 / 100));
+      svg.innerHTML += `
+        <line x1="${airX0}" y1="${airY0}" x2="${airX1}" y2="${airY1}" stroke="#0f172a" stroke-width="1.8" stroke-dasharray="5,4"/>
+        <text x="${toSvgX(17)}" y="${toSvgY(20.93 * (1 - 17 / 100)) - 8}" font-size="10" font-weight="600" fill="#0f172a">Air Line</text>
+      `;
+
+      // 3. Zone A: Explosive Region Polygon (USBM Bulletin 503)
+      // LEL: (5.0, 19.88), UEL: (15.0, 17.79), Nose: (5.9, 12.1)
+      const ptLEL = `${toSvgX(5.0)},${toSvgY(19.88)}`;
+      const ptUEL = `${toSvgX(15.0)},${toSvgY(17.79)}`;
+      const ptNose = `${toSvgX(5.9)},${toSvgY(12.1)}`;
+      
+      // Top curve between LEL and UEL along air line
+      let topCurve = "";
+      for (let c = 5.0; c <= 15.0; c += 1.0) {
+        topCurve += ` ${toSvgX(c)},${toSvgY(20.93 * (1 - c / 100))}`;
+      }
+
+      svg.innerHTML += `
+        <polygon points="${ptLEL}${topCurve} ${ptUEL} ${ptNose}" fill="rgba(239, 68, 68, 0.25)" stroke="#dc2626" stroke-width="2"/>
+        <text x="${toSvgX(8.5)}" y="${toSvgY(16.0)}" font-size="12" font-weight="bold" fill="#b91c1c" text-anchor="middle">ZONE A</text>
+        <text x="${toSvgX(8.5)}" y="${toSvgY(16.0) + 14}" font-size="9" fill="#b91c1c" text-anchor="middle">(Explosive)</text>
+      `;
+
+      // 4. Origin-Nose Ray (Slope = 12.1 / 5.9 ≈ 2.05)
+      const rayX1 = 10.0, rayY1 = 2.0508 * 10.0;
+      svg.innerHTML += `
+        <line x1="${toSvgX(0)}" y1="${toSvgY(0)}" x2="${toSvgX(rayX1)}" y2="${toSvgY(rayY1)}" stroke="#9333ea" stroke-width="1.4" stroke-dasharray="4,3"/>
+      `;
+
+      // Zone Labels
+      svg.innerHTML += `
+        <text x="${toSvgX(16.5)}" y="${toSvgY(9.0)}" font-size="11" font-weight="bold" fill="#ea580c" text-anchor="middle">ZONE B</text>
+        <text x="${toSvgX(16.5)}" y="${toSvgY(9.0) + 12}" font-size="9" fill="#ea580c" text-anchor="middle">(Explosive w/ air)</text>
+
+        <text x="${toSvgX(2.2)}" y="${toSvgY(15.5)}" font-size="11" font-weight="bold" fill="#2563eb" text-anchor="middle">ZONE C</text>
+        <text x="${toSvgX(2.2)}" y="${toSvgY(15.5) + 12}" font-size="9" fill="#2563eb" text-anchor="middle">(Explosive w/ CH₄)</text>
+
+        <rect x="${toSvgX(1.0)}" y="${toSvgY(5.5)}" width="150" height="42" rx="4" fill="rgba(240, 253, 244, 0.85)" stroke="#16a34a" stroke-width="1"/>
+        <text x="${toSvgX(1.0) + 75}" y="${toSvgY(5.5) + 18}" font-size="12" font-weight="bold" fill="#15803d" text-anchor="middle">ZONE D (Inert)</text>
+        <text x="${toSvgX(1.0) + 75}" y="${toSvgY(5.5) + 32}" font-size="9" fill="#15803d" text-anchor="middle">All 14 Lodna Samples</text>
+      `;
+
+      // Reference Limit Dots
+      svg.innerHTML += `
+        <circle cx="${toSvgX(5.0)}" cy="${toSvgY(19.88)}" r="4.5" fill="#991b1b"/>
+        <text x="${toSvgX(5.0) - 8}" y="${toSvgY(19.88) - 6}" font-size="9" font-weight="600" fill="#991b1b" text-anchor="end">LEL (5.0%, 19.9%)</text>
+        
+        <circle cx="${toSvgX(15.0)}" cy="${toSvgY(17.79)}" r="4.5" fill="#991b1b"/>
+        <text x="${toSvgX(15.0) + 8}" y="${toSvgY(17.79) - 6}" font-size="9" font-weight="600" fill="#991b1b">UEL (15.0%, 17.8%)</text>
+
+        <circle cx="${toSvgX(5.9)}" cy="${toSvgY(12.1)}" r="4.5" fill="#991b1b"/>
+        <text x="${toSvgX(5.9) - 8}" y="${toSvgY(12.1) + 4}" font-size="9" font-weight="600" fill="#991b1b" text-anchor="end">Nose (5.9%, 12.1%)</text>
+      `;
+
+      // 5. Theoretical N2 Dilution Trajectory (15% CH4, 10% O2 -> 0,0)
+      if (showDilution) {
+        svg.innerHTML += `
+          <line x1="${toSvgX(15.0)}" y1="${toSvgY(10.0)}" x2="${toSvgX(0)}" y2="${toSvgY(0)}" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="6,4"/>
+          <circle cx="${toSvgX(15.0)}" cy="${toSvgY(10.0)}" r="6" fill="#0369a1" stroke="#fff" stroke-width="1.5"/>
+          <text x="${toSvgX(15.0) + 8}" y="${toSvgY(10.0) + 4}" font-size="9.5" font-weight="bold" fill="#0369a1">Initial (15% CH₄, 10% O₂)</text>
+
+          <!-- Current Slider Position -->
+          <circle cx="${toSvgX(15.0 * currentF)}" cy="${toSvgY(10.0 * currentF)}" r="7" fill="#06b6d4" stroke="#0f172a" stroke-width="2"/>
+        `;
+      }
+
+      // 6. Draw Lodna Samples (N=14)
+      samples.forEach(s => {
+        const cx = toSvgX(s.ch4);
+        const cy = toSvgY(s.o2);
+        const isSelected = s.no === selectedSampleNo;
+        const color = isSelected ? "#e11d48" : (s.temp >= 70 ? "#ea580c" : (s.temp >= 50 ? "#eab308" : "#3b82f6"));
+        const radius = isSelected ? 8.5 : 6;
+
+        svg.innerHTML += `
+          <g class="cursor-pointer" onclick="selectSample(${s.no})" onmouseenter="showTooltip(event, ${s.no})" onmouseleave="hideTooltip()">
+            <circle cx="${cx}" cy="${cy}" r="${radius}" fill="${color}" stroke="#0f172a" stroke-width="${isSelected ? 2.5 : 1.2}"/>
+            <text x="${cx + 8}" y="${cy - 5}" font-size="${isSelected ? 10.5 : 8.5}" font-weight="${isSelected ? 'bold' : '600'}" fill="#0f172a">
+              S${s.no} (${s.temp}°C)
+            </text>
+          </g>
+        `;
+      });
+
+      // 7. Outer Frame & Axis Labels
+      svg.innerHTML += `
+        <line x1="${toSvgX(0)}" y1="${toSvgY(0)}" x2="${toSvgX(xMax)}" y2="${toSvgY(0)}" stroke="#334155" stroke-width="2"/>
+        <line x1="${toSvgX(0)}" y1="${toSvgY(0)}" x2="${toSvgX(0)}" y2="${toSvgY(yMax)}" stroke="#334155" stroke-width="2"/>
+        <text x="${toSvgX(xMax / 2)}" y="${height - 12}" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">
+          Methane, CH₄ (% by volume)
+        </text>
+        <text x="18" y="${toSvgY(yMax / 2)}" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle" transform="rotate(-90 18 ${toSvgY(yMax / 2)})">
+          Oxygen, O₂ (% by volume)
+        </text>
+      `;
+    }
+
+    // Tooltip logic
+    function showTooltip(e, sampleNo) {
+      const s = samples.find(x => x.no === sampleNo);
+      if (!s) return;
+      const rect = svg.getBoundingClientRect();
+      const x = e.clientX - rect.left + 15;
+      const y = e.clientY - rect.top - 20;
+
+      tooltip.innerHTML = `
+        <div class="font-bold text-sm text-blue-300">Sample S${s.no} — ${s.date}</div>
+        <div class="mt-1 space-y-0.5 text-[11px] text-slate-200">
+          <div>Temp: <strong class="text-white">${s.temp} °C</strong></div>
+          <div>CH₄: <strong>${s.ch4.toFixed(3)}%</strong> | O₂: <strong>${s.o2.toFixed(2)}%</strong></div>
+          <div>CO: <strong>${s.co.toFixed(3)}%</strong> | H₂: <strong>${s.h2.toFixed(3)}%</strong></div>
+          <div>CO₂: <strong>${s.co2.toFixed(2)}%</strong> | N₂: <strong>${s.n2.toFixed(2)}%</strong></div>
+          <div>Graham Ratio: <strong class="text-amber-300">${s.graham.toFixed(3)}</strong></div>
+          <div>Coward Zone: <strong class="text-emerald-300">Zone D (Inert)</strong></div>
+        </div>
+      `;
+      tooltip.style.left = `${x}px`;
+      tooltip.style.top = `${y}px`;
+      tooltip.classList.remove("hidden");
+    }
+
+    function hideTooltip() {
+      tooltip.classList.add("hidden");
+    }
+
+    // Event Listeners for interactive controls
+    document.getElementById("toggleDilution").onchange = drawCowardDiagram;
+    document.getElementById("dilutionSlider").oninput = (e) => {
+      const f = parseFloat(e.target.value);
+      document.getElementById("sliderValue").textContent = `f = ${f.toFixed(2)}`;
+      document.getElementById("dilutionCh4").textContent = `${(15.0 * f).toFixed(2)} %`;
+      document.getElementById("dilutionO2").textContent = `${(10.0 * f).toFixed(2)} %`;
+      drawCowardDiagram();
+    };
+    document.getElementById("resetZoomBtn").onclick = () => {
+      selectedSampleNo = 6;
+      document.getElementById("dilutionSlider").value = 1.0;
+      document.getElementById("sliderValue").textContent = "f = 1.00 (Initial)";
+      document.getElementById("dilutionCh4").textContent = "15.00 %";
+      document.getElementById("dilutionO2").textContent = "10.00 %";
+      selectSample(6);
+    };
+
+    // Initial Render
+    selectSample(6);
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+Zone,Boundary_ID,CH4_percent,O2_percent,Reference,Description
+A,LEL_air,5.00,19.88,"Coward & Jones (1952), USBM Bull. 503, p. 25","Lower Explosive Limit in standard air (20.93 * (1 - 0.05) = 19.88% O2)"
+A,UEL_air,15.00,17.79,"Coward & Jones (1952), USBM Bull. 503, p. 25","Upper Explosive Limit in standard air (20.93 * (1 - 0.15) = 17.79% O2)"
+A,Nose_Point,5.90,12.10,"Coward & Jones (1952), USBM Bull. 503; Zabetakis (1965) Bull. 627","Minimum O2 to support CH4-air-N2 flame propagation (Nose limit)"
+B,Nose_Air_Tangent,14.28,17.94,"Calculated from ray from (0,0) through Nose (5.9, 12.1) intersecting air line","Boundary between Zone B (explosive when diluted with air) and Zone D"
+C,LEL_Methane_Addition,5.00,19.88,"USBM Bull. 503","Boundary between Zone C (explosive when CH4 added) and Zone A"
+D,Inert_Origin,0.00,0.00,"USBM Bull. 503","Origin of Coward coordinate system (100% N2 diluent)"
+D,Inert_Air_Intercept,0.00,20.93,"USBM Bull. 503","Clean air intercept (0% CH4, 20.93% O2)"
+E,Impossible_Line_Air,0.00,20.93,"Theoretical air dilution ceiling","Air line intercept at 0% CH4"
+E,Impossible_Line_Methane,100.00,0.00,"Theoretical air dilution ceiling","Air line intercept at 100% CH4"
